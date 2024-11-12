@@ -133,7 +133,7 @@ if [ -z "$JAVA_HOME" ] ; then
 fi
 
 # traverses directory structure from process work directory to filesystem root
-# first directory with .mvn subdirectory is considered project base directory
+# first directory with .mvn subdirectory is considered projectId base directory
 find_maven_basedir() {
   if [ -z "$1" ]
   then
@@ -185,7 +185,7 @@ log "$MAVEN_PROJECTBASEDIR"
 
 ##########################################################################################
 # Extension to allow automatically downloading the maven-wrapper.jar from Maven-central
-# This allows using the maven wrapper in projects that prohibit checking in binary data.
+# This allows using the maven wrapper in projectIds that prohibit checking in binary data.
 ##########################################################################################
 wrapperJarPath="$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar"
 if [ -r "$wrapperJarPath" ]; then
