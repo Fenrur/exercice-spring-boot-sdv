@@ -3,9 +3,7 @@ package com.exo1.exo1;
 import com.exo1.exo1.project.ProjectController;
 import com.exo1.exo1.project.ProjectDto;
 import com.exo1.exo1.project.ProjectEntity;
-import com.exo1.exo1.task.TaskController;
-import com.exo1.exo1.task.TaskDto;
-import com.exo1.exo1.task.TaskEntity;
+import com.exo1.exo1.task.*;
 import com.exo1.exo1.user.UserController;
 import com.exo1.exo1.user.UserDto;
 import com.exo1.exo1.user.UserEntity;
@@ -62,5 +60,9 @@ public class Mapper {
 
     public ProjectController.UpdateProjectResponseBody toUpdateProjectResponseBody(ProjectDto projectDto) {
         return new ProjectController.UpdateProjectResponseBody(projectDto.id(), projectDto.name(), projectDto.description(), projectDto.users(), projectDto.tasks());
+    }
+    
+    public ProjectTaskCountDto toProjectTaskCountDto(ProjectTaskCountEntity projectEntity) {
+        return new ProjectTaskCountDto(projectEntity.getProjectName(), projectEntity.getTaskCount());
     }
 }
