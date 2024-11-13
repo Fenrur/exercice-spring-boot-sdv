@@ -3,21 +3,20 @@ package com.exo1.exo1.project;
 import com.exo1.exo1.task.TaskEntity;
 import com.exo1.exo1.user.UserEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.List;
+import java.util.Set;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Entity(name = "project")
 public class ProjectEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "project_id")
     private Long id;
 
     @Column(nullable = false)
@@ -27,8 +26,9 @@ public class ProjectEntity {
     private String description;
     
     @ManyToMany(fetch = FetchType.LAZY)
-    private List<UserEntity> users;
-    
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<TaskEntity> tasks;
+    @JoinTable(name = "users_projet", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "users_id"))
+    private Set<UserEntity> users;
+
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<TaskEntity> tasks;
 }

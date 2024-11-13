@@ -1,34 +1,42 @@
 package com.exo1.exo1.project;
 
 import com.exo1.exo1.Mapper;
-import com.exo1.exo1.task.TaskEntity;
-import com.exo1.exo1.user.UserEntity;
+import com.exo1.exo1.task.TaskRepository;
+import com.exo1.exo1.user.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectDatabaseService implements ProjectService {
     
     private final ProjectRepository projectRepository;
+    private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
     private final Mapper mapper;
 
-    public ProjectDatabaseService(ProjectRepository projectRepository, Mapper mapper) {
+    public ProjectDatabaseService(ProjectRepository projectRepository, TaskRepository taskRepository, UserRepository userRepository, Mapper mapper) {
         this.projectRepository = projectRepository;
+        this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
         this.mapper = mapper;
     }
 
     @Override
     @Transactional
-    public void create(String name, String description, List<Long> userIds, List<Long> taskIds) {
+    public ProjectDto create(String name, String description, Set<Long> userIds, Set<Long> taskIds) {
         var userEntities = userIds.stream()
-                .map(id -> UserEntity.builder().id(id).build())
-                .toList();
-        
+                .map(userId -> userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found: " + userId)))
+                .collect(Collectors.toSet());
+
         var taskEntities = taskIds.stream()
-                .map(id -> TaskEntity.builder().id(id).build())
-                .toList();
+                .map(taskId -> taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task not found: " + taskId)))
+                .collect(Collectors.toSet());
         
         var projectEntity = ProjectEntity.builder()
                 .name(name)
@@ -38,26 +46,27 @@ public class ProjectDatabaseService implements ProjectService {
                 .build();
         
         projectRepository.save(projectEntity);
+        
+        return mapper.toProjectDto(projectEntity);
     }
 
     @Override
-    @Transactional
     public ProjectDto get(Long id) {
         var projectEntity = projectRepository.findById(id).orElseThrow();
         
-        return mapper.toDto(projectEntity);
+        return mapper.toProjectDto(projectEntity);
     }
 
     @Override
     @Transactional
-    public void update(Long id, String name, String description, List<Long> userIds, List<Long> taskIds) {
+    public ProjectDto update(Long id, String name, String description, Set<Long> userIds, Set<Long> taskIds) {
         var userEntities = userIds.stream()
-                .map(userEntityId -> UserEntity.builder().id(userEntityId).build())
-                .toList();
-        
+                .map(userId -> userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found: " + userId)))
+                .collect(Collectors.toSet());
+
         var taskEntities = taskIds.stream()
-                .map(taskEntityId -> TaskEntity.builder().id(taskEntityId).build())
-                .toList();
+                .map(taskId -> taskRepository.findById(taskId).orElseThrow(() -> new EntityNotFoundException("Task not found: " + taskId)))
+                .collect(Collectors.toSet());
         
         var projectEntity = ProjectEntity.builder()
                 .id(id)
@@ -68,11 +77,18 @@ public class ProjectDatabaseService implements ProjectService {
                 .build();
         
         projectRepository.save(projectEntity);
+        
+        return mapper.toProjectDto(projectEntity);
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
         projectRepository.deleteById(id);
+    }
+    
+    @Override
+    public Page<ProjectDto> list(Pageable pageable) {
+        return projectRepository.findAll(pageable).map(mapper::toProjectDto);
     }
 }

@@ -1,23 +1,24 @@
 package com.exo1.exo1.user;
 
 import com.exo1.exo1.project.ProjectEntity;
+import com.exo1.exo1.task.TaskEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Entity(name = "uuser")
+@Entity(name = "users")
 public class UserEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "users_id")
     private Long id;
 
     @Column(nullable = false)
@@ -26,6 +27,10 @@ public class UserEntity {
     @Column(nullable = false)
     private String email;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    private List<ProjectEntity> projects;
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "users_projet", joinColumns = @JoinColumn(name = "users_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
+    private Set<ProjectEntity> projects;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private TaskEntity task;
 }
